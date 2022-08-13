@@ -11,6 +11,7 @@ from requests_html import UserAgent
 import json
 import re
 
+# 创建一个'python_快手video'的目录
 dir_name = 'python_快手video'
 if not os.path.exists(dir_name):
     os.mkdir(dir_name)
@@ -49,16 +50,23 @@ params = {"operationName": "visionSearchPhoto",
                    "webPageArea\n    feeds {\n      ...feedContent\n      __typename\n    }\n    searchSessionId\n    "
                    "pcursor\n    aladdinBanner {\n      imgUrl\n      link\n      __typename\n    }\n    "
                    "__typename\n  }\n}\n"}
+# POST请求的data信息是json格式的，需要将其转化为json格式
 data = json.dumps(params)
 time.sleep(2)
+# POST请求
 res = requests.post(url, headers=header, data=data)
 content = res.json()
+# 获取所有的视频
 feeds = content['data']['visionSearchPhoto']['feeds']
 for feed in feeds:
+    # 视频标题
     title = feed['photo']['caption']
+    # 视频链接
     link = feed['photo']['photoUrl']
+    # 去除视频标题的特殊符号
     new_title = re.sub(r'[\/:*?"<>|\n]', '_', title)
     content = requests.get(link).content
+    # 下载视频
     with open(dir_name + '/' + new_title + '.mp4', 'wb') as f:
         f.write(content)
         print(title, '下载完成...')
